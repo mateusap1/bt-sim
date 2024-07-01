@@ -4,6 +4,8 @@ project(nurse_BT)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 find_package(behaviortree_cpp_v3)
 
 add_executable(${PROJECT_NAME} "nurse.cpp")
