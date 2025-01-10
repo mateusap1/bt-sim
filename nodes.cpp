@@ -5,13 +5,18 @@
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/blackboard.h>
 
+#include "bridge.cpp"
+
 class MoveToNurse : public BT::SyncActionNode
 {
+private:
+    Bridge bridge;
 public:
-    MoveToNurse(const std::string &name) : BT::SyncActionNode(name, {}) {}
+    MoveToNurse(const std::string &name) : BT::SyncActionNode(name, {}), bridge("http://127.0.0.1:8000/trigger") { }
 
     BT::NodeStatus tick() override
     {
+        bridge.gotopoi("patientRoom");
         std::cout << "Moving to nurse... " << std::endl;
         return BT::NodeStatus::SUCCESS;
     }

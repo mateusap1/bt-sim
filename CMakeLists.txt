@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(behaviortree_cpp_v3)
+find_package(CURL REQUIRED)
 
 add_executable(${PROJECT_NAME} "nurse.cpp")
-target_link_libraries(${PROJECT_NAME} BT::behaviortree_cpp_v3)
+target_link_libraries(${PROJECT_NAME} BT::behaviortree_cpp_v3 CURL::libcurl)
