@@ -7,121 +7,78 @@
 
 #include "bridge.cpp"
 
-class MoveToNurse : public BT::SyncActionNode
+class MoveTo : public BT::SyncActionNode
 {
 private:
     Bridge bridge;
-public:
-    MoveToNurse(const std::string &name) : BT::SyncActionNode(name, {}), bridge("http://127.0.0.1:8000/trigger") { }
 
-    BT::NodeStatus tick() override
-    {
-        bridge.gotopoi("patientRoom");
-        std::cout << "Moving to nurse... " << std::endl;
-        return BT::NodeStatus::SUCCESS;
-    }
-};
-
-class ReceiveBarcode : public BT::SyncActionNode
-{
 public:
-    ReceiveBarcode(const std::string &name, const BT::NodeConfiguration &config) : BT::SyncActionNode(name, config) {}
+    MoveTo(const std::string &name, const BT::NodeConfiguration &config) : BT::SyncActionNode(name, config), bridge("http://127.0.0.1:8000/trigger") {}
 
     static BT::PortsList providedPorts()
     {
-        return {BT::OutputPort<std::string>("barcode")};
+        return {BT::InputPort<std::string>("destination")};
     }
 
     BT::NodeStatus tick() override
     {
-        std::string barcode_key;
+        BT::Optional<std::string> res = getInput<std::string>("destination");
+        if (!res) {
+            throw BT::RuntimeError("Missing required input [destination]: ", res.error());
+        }
+        std::string destination = res.value();
 
-        std::cout << "Barcode key: ";
-        std::cin >> barcode_key;
+        bridge.gotopoi(destination);
+        std::cout << "Moving to " << destination << std::endl;
 
-        setOutput("barcode", barcode_key);
-
-        std::cout << "Setting key to " << barcode_key << std::endl;
         return BT::NodeStatus::SUCCESS;
     }
 };
 
-class CheckBarcode : public BT::ConditionNode
+class Grab : public BT::SyncActionNode
 {
 public:
-    CheckBarcode(const std::string &name, const BT::NodeConfiguration &config) : BT::ConditionNode(name, config) {}
+    Grab(const std::string &name, const BT::NodeConfiguration &config) : BT::SyncActionNode(name, config) {}
 
     static BT::PortsList providedPorts()
     {
-        return {BT::InputPort<std::string>("barcode")};
+        return {BT::InputPort<std::string>("item")};
     }
 
     BT::NodeStatus tick() override
     {
-        BT::Optional<std::string> key = getInput<std::string>("barcode");
-
-        if (!key)
-        {
-            throw BT::RuntimeError("missing required input [message]: ", key.error());
+        BT::Optional<std::string> res = getInput<std::string>("item");
+        if (!res) {
+            throw BT::RuntimeError("Missing required input [item]: ", res.error());
         }
+        std::string item = res.value();
 
-        if (key.value() != "test_key")
-        {
-            std::cout << "Nurse auth failed with " << key.value() << std::endl;
-            return BT::NodeStatus::FAILURE;
+        std::cout << "Grabbing item " << item << std::endl;
+
+        return BT::NodeStatus::SUCCESS;
+    }
+};
+
+class Drop : public BT::SyncActionNode
+{
+public:
+    Drop(const std::string &name, const BT::NodeConfiguration &config) : BT::SyncActionNode(name, config) {}
+
+    static BT::PortsList providedPorts()
+    {
+        return {BT::InputPort<std::string>("item")};
+    }
+
+    BT::NodeStatus tick() override
+    {
+        BT::Optional<std::string> res = getInput<std::string>("item");
+        if (!res) {
+            throw BT::RuntimeError("Missing required input [item]: ", res.error());
         }
+        std::string item = res.value();
 
-        std::cout << "Nurse authenticated!" << std::endl;
-        return BT::NodeStatus::SUCCESS;
-    }
-};
+        std::cout << "Dropping item " << item << std::endl;
 
-class ReleaseDrawer : public BT::SyncActionNode
-{
-public:
-    ReleaseDrawer(const std::string &name) : BT::SyncActionNode(name, {}) {}
-
-    BT::NodeStatus tick() override
-    {
-        std::cout << "Releasing drawer... " << this->name() << std::endl;
-        return BT::NodeStatus::SUCCESS;
-    }
-};
-
-class WaitDrawerClose : public BT::ConditionNode
-{
-public:
-    WaitDrawerClose(const std::string &name) : BT::ConditionNode(name, {}) {}
-
-    BT::NodeStatus tick() override
-    {
-        std::getchar();
-
-        std::cout << "User closed drawer " << this->name() << std::endl;
-        return BT::NodeStatus::SUCCESS;
-    }
-};
-
-class MoveToLab : public BT::SyncActionNode
-{
-public:
-    MoveToLab(const std::string &name) : BT::SyncActionNode(name, {}) {}
-
-    BT::NodeStatus tick() override
-    {
-        std::cout << "Moving to lab... " << this->name() << std::endl;
-        return BT::NodeStatus::SUCCESS;
-    }
-};
-
-class MoveToInitial : public BT::SyncActionNode
-{
-public:
-    MoveToInitial(const std::string &name) : BT::SyncActionNode(name, {}) {}
-
-    BT::NodeStatus tick() override
-    {
-        std::cout << "Moving to initial... " << this->name() << std::endl;
         return BT::NodeStatus::SUCCESS;
     }
 };

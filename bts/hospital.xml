@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3">
+  <BehaviorTree ID="hospital">
+    <Fallback>
+      <Sequence>
+        <Sequence>
+          <MoveTo destination="medRoom"/>
+          <Grab item="medicine"/>
+        </Sequence>
+        <Sequence>
+          <MoveTo destination="patientRoom"/>
+          <Drop item="medicine"/>
+        </Sequence>
+        <MoveTo destination="robotHome"/>
+      </Sequence>
+      <MoveTo destination="robotHome"/>
+    </Fallback>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="Drop"
+            editable="true">
+      <input_port name="item"/>
+    </Action>
+    <Action ID="Grab"
+            editable="true">
+      <input_port name="item"/>
+    </Action>
+    <Action ID="MoveTo"
+            editable="true">
+      <input_port name="destination"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

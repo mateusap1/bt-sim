@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3" project_name="Project">
+    <include path="hospital.xml"/>
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Condition ID="CheckBarcode">
+            <input_port name="barcode"/>
+        </Condition>
+        <Action ID="Drop" editable="true">
+            <input_port name="item"/>
+        </Action>
+        <Action ID="Grab" editable="true">
+            <input_port name="item"/>
+        </Action>
+        <Action ID="MoveTo" editable="true">
+            <input_port name="destination"/>
+        </Action>
+        <Condition ID="WaitDrawerClose"/>
+    </TreeNodesModel>
+</root>
