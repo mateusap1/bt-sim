@@ -9,12 +9,12 @@ std::string string_format(const std::string &format, Args... args)
 {
     int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1; // Extra space for '\0'
     if (size_s <= 0)
-    {
         throw std::runtime_error("Error during formatting.");
-    }
+
     auto size = static_cast<size_t>(size_s);
     std::unique_ptr<char[]> buf(new char[size]);
     std::snprintf(buf.get(), size, format.c_str(), args...);
+
     return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
 }
 
@@ -22,6 +22,7 @@ size_t WriteCallback(void *contents, size_t size, size_t nmemb, std::string *res
 {
     size_t totalSize = size * nmemb;
     response->append((char *)contents, totalSize);
+
     return totalSize;
 }
 
@@ -67,18 +68,14 @@ private:
 
             // Check for errors
             if (res != CURLE_OK)
-            {
                 error = curl_easy_strerror(res);
-            }
 
             // Clean up
             curl_easy_cleanup(curl);
             curl_slist_free_all(headers);
         }
         else
-        {
             error = "Failed to initialize cURL.";
-        }
 
         if (!error.empty())
             return "";
@@ -98,12 +95,8 @@ public:
 
         std::string result = postRequest(data);
         if (!error.empty())
-        {
             std::cerr << error << std::endl;
-        }
         else
-        {
             std::cout << result << std::endl;
-        }
     }
 };
