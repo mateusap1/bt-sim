@@ -6,9 +6,10 @@ int main()
 {
     // We use the BehaviorTreeFactory to register our custom nodes
   BT::BehaviorTreeFactory factory;
+  Bridge bridge = Bridge("");
 
   // The recommended way to create a Node is through inheritance.
-  factory.registerNodeType<MoveTo>("MoveTo");
+  factory.registerNodeType<MoveTo>("MoveTo", bridge);
   factory.registerNodeType<Grab>("Grab");
   factory.registerNodeType<Drop>("Drop");
 
