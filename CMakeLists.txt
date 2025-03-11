@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_PREFIX_PATH "/opt/homebrew/Cellar/behaviortree.cpp/4.6.2" ${CMAKE_PREFIX_PATH})
-
 find_package(behaviortree_cpp_v3)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(CURL REQUIRED)

@@ -10,7 +10,11 @@
 class MoveTo : public BT::StatefulActionNode
 {
 public:
-    MoveTo(const std::string &name, const BT::NodeConfiguration &config, Bridge &b) : BT::StatefulActionNode(name, config), bridge(b) {}
+    // Now the Bridge is initialized internally.
+    MoveTo(const std::string &name, const BT::NodeConfiguration &config)
+        : BT::StatefulActionNode(name, config),
+          bridge("http://127.0.0.1:8000") // Adjust the URL/params as needed.
+    {}
 
     static BT::PortsList providedPorts()
     {
@@ -20,7 +24,7 @@ public:
     BT::NodeStatus onStart() override
     {
         std::string destination = parseDestination();
-        auto result = api.goToPOI(destination);
+        auto result = bridge.moveToPOI(destination);
         if (result.success) {
             std::cout << "Moving to " << destination << std::endl;
             return BT::NodeStatus::RUNNING;
@@ -29,21 +33,25 @@ public:
             std::cout << "Error: " << result.error_message << "\n";
             return BT::NodeStatus::FAILURE;
         }
-    };
+    }
 
-    BT::NodeStatus onRunning() override {
-        auto query_result = api.queryComponent(2, "position");
+    BT::NodeStatus onRunning() override 
+    {
+        auto query_result = bridge.queryComponent(2, "position");
         if (query_result.success) {
             json position = query_result.data;
-            if (position["x"] == 70 && position[y] == 220) return return BT::NodeStatus::SUCCESS;
+            if (position["x"] == 70 && position["y"] == 220)
+                return BT::NodeStatus::SUCCESS;
             std::cout << "Received component info:\n" << query_result.data.dump(2) << "\n";
+            return BT::NodeStatus::RUNNING;
         } else {
             std::cout << "Failed to query component (Status: " << query_result.status_code << ")\n";
             std::cout << "Error: " << query_result.error_message << "\n";
+            return BT::NodeStatus::FAILURE;
         }
-    };
+    }
 
-    void onHalted() override;
+    void onHalted() override {}
 
 private:
     Bridge bridge;
@@ -53,7 +61,6 @@ private:
         BT::Optional<std::string> res = getInput<std::string>("destination");
         if (!res)
             throw BT::RuntimeError("Missing required input [destination]: ", res.error());
-
         return res.value();
     }
 };
@@ -72,9 +79,7 @@ public:
     {
         BT::Optional<std::string> res = getInput<std::string>("item");
         if (!res)
-        {
             throw BT::RuntimeError("Missing required input [item]: ", res.error());
-        }
         std::string item = res.value();
 
         std::cout << "Grabbing item " << item << std::endl;
@@ -97,9 +102,7 @@ public:
     {
         BT::Optional<std::string> res = getInput<std::string>("item");
         if (!res)
-        {
             throw BT::RuntimeError("Missing required input [item]: ", res.error());
-        }
         std::string item = res.value();
 
         std::cout << "Dropping item " << item << std::endl;
