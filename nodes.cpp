@@ -39,10 +39,10 @@ public:
     {
         auto query_result = bridge.queryComponent(2, "position");
         if (query_result.success) {
-            json position = query_result.data;
-            if (position["x"] == 70 && position["y"] == 220)
+            json position = query_result.data["position"];
+
+            if (closeToPosition(514, 240, position["x"], position["y"], 20))
                 return BT::NodeStatus::SUCCESS;
-            std::cout << "Received component info:\n" << query_result.data.dump(2) << "\n";
             return BT::NodeStatus::RUNNING;
         } else {
             std::cout << "Failed to query component (Status: " << query_result.status_code << ")\n";
@@ -55,6 +55,12 @@ public:
 
 private:
     Bridge bridge;
+
+    bool closeToPosition(double targetX, double targetY, double actualX, double actualY, double offset) {
+        // Calculate the Euclidean distance between the two points.
+        double distance = std::hypot(targetX - actualX, targetY - actualY);
+        return distance <= offset;
+    }
 
     std::string parseDestination()
     {
