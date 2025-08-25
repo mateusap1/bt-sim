@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
 #include <behaviortree_cpp_v3/behavior_tree.h>
 #include <behaviortree_cpp_v3/bt_factory.h>
@@ -14,7 +15,11 @@ public:
     MoveTo(const std::string &name, const BT::NodeConfiguration &config)
         : BT::StatefulActionNode(name, config),
           bridge("http://127.0.0.1:8000") // Adjust the URL/params as needed.
-    {}
+    {
+        positions["medRoom"] = std::make_tuple(514.5, 240.0);
+        positions["patientRoom"] = std::make_tuple(70.0, 220.0);
+        positions["robotHome"] = std::make_tuple(495.0, 75.0);
+    }
 
     static BT::PortsList providedPorts()
     {
@@ -37,11 +42,15 @@ public:
 
     BT::NodeStatus onRunning() override 
     {
+        std::string destination = parseDestination();
         auto query_result = bridge.queryComponent(2, "position");
         if (query_result.success) {
             json position = query_result.data["position"];
 
-            if (closeToPosition(514, 240, position["x"], position["y"], 20))
+            double desX = std::get<0>(positions[destination]);
+            double desY = std::get<1>(positions[destination]);
+
+            if (closeToPosition(desX, desY, position["x"], position["y"], 20))
                 return BT::NodeStatus::SUCCESS;
             return BT::NodeStatus::RUNNING;
         } else {
@@ -55,6 +64,7 @@ public:
 
 private:
     Bridge bridge;
+    std::unordered_map<std::string, std::tuple<double, double>> positions;
 
     bool closeToPosition(double targetX, double targetY, double actualX, double actualY, double offset) {
         // Calculate the Euclidean distance between the two points.

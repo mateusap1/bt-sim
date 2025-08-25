@@ -19,17 +19,17 @@
         <Fallback>
             <Sequence>
                 <Sequence>
-                    <Action ID="MoveToNurse"/>
+                    <MoveTo destination="medRoom"/>
                     <SubTree ID="Auth"/>
                     <SubTree ID="Drawer"/>
                 </Sequence>
-                <Action ID="MoveToLab"/>
+                <MoveTo destination="patientRoom"/>
                 <Sequence>
                     <SubTree ID="Auth"/>
                     <SubTree ID="Drawer"/>
                 </Sequence>
             </Sequence>
-            <Action ID="MoveToInitial"/>
+            <MoveTo destination="robotHome"/>
         </Fallback>
     </BehaviorTree>
     <!-- ////////// -->
@@ -41,7 +41,7 @@
         <SubTree ID="Drawer"/>
         <Action ID="MoveTo"
                 editable="true">
-        <input_port name="destination"/>
+            <input_port name="destination"/>
         </Action>
         <Action ID="ReceiveBarcode">
             <output_port name="barcode"/>
